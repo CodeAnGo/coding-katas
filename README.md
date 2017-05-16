@@ -1,4 +1,5 @@
-# Coding Katas
+# Coding Katas  ![alt text][logo]
+[logo]: https://travis-ci.org/CodeAnGo/coding-katas.svg?branch=master "TravisCL"
 
 An attempt at completing the some problems using TDD.
 
