@@ -1,5 +1,5 @@
 package base
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{Matchers, WordSpec}
 
-trait UnitSpec extends FlatSpec with Matchers
+trait UnitSpec extends WordSpec with Matchers

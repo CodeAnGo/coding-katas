@@ -4,49 +4,52 @@ import scala.math
   * Created by luke on 16/05/17.
   */
 
-class Position(var x: Int, var y: Int)
+case class Position(var x: Int = 0, var y: Int = 0)
 
-class Obstacle(val location: Position)
-
-class Rover(var location: Position = new Position(0,0), var direction: Char = 'N', var instructions: List[Char] = List.empty[Char]){
-
+class Rover(var location: Position = Position(0,0), var direction: Char = Localizer.NORTH, var instructions: List[Char] = List.empty[Char]){
   def getCurrentPosition(): Position = location
-
   def getCurrentDirection(): Char = direction
-
   private def setDirection(newDirection: Char): Unit =(direction = newDirection)
-
   private def setPosition(newPosition: Position): Unit =(location = newPosition)
 
-  private def turn(direction: Char): Unit = setDirection(direction)
-
-  private def step(): Unit = {
+  private def step(): Position = {
     getCurrentDirection() match{
-      case 'N' => setPosition(new Position(getCurrentPosition().x, getCurrentPosition().y + 1))
-      case 'S' => setPosition(new Position(getCurrentPosition().x, getCurrentPosition().y + -1))
-      case 'E' => setPosition(new Position(getCurrentPosition().x + 1, getCurrentPosition().y))
-      case 'W' => setPosition(new Position(getCurrentPosition().x + -1, getCurrentPosition().y))
+      case Localizer.NORTH => Position(getCurrentPosition().x, getCurrentPosition().y + 1)
+      case Localizer.SOUTH => Position(getCurrentPosition().x, getCurrentPosition().y + -1)
+      case Localizer.EAST => Position(getCurrentPosition().x + 1, getCurrentPosition().y)
+      case Localizer.WEST => Position(getCurrentPosition().x + -1, getCurrentPosition().y)
     }
   }
 
-  def instructRover(instructions: List[Char]): Boolean = {
+  def instructRover(instructions: List[Char], planet: Planet): Boolean = {
+    var error = false
     for (i <- instructions.indices) {
-      if ("NESW".contains(instructions(i))) {
+      if (Localizer.COMPASS.contains(instructions(i))) {
         setDirection(instructions(i))
-      } else if (instructions(i) == 'M') {
-        step()
+        error = false
+      } else if (instructions(i) == Localizer.MOVE) {
+        if (!planet.getObstacles().contains(step())) { setPosition(step()); error = false } else { error = true }
       } else {
-        return false
+        error = true
       }
     }
-    return true
+    !error
   }
 }
 
-class Planet(val minPos: Position, val maxPos: Position){
+class Planet(val minPos: Position, val maxPos: Position, var obstacles: List[Position] = List.empty[Position]){
 
+  def makeObstacle(where: Position): Boolean = {
+   if (getObstacles().contains(where)){
+     false
+   } else {
+     obstacles = obstacles ::: List(where)
+     true
+   }
+  }
+
+  def getObstacles(): List[Position] = obstacles
   def calculateSize: Int = (scala.math.abs(minPos.x) + scala.math.abs(maxPos.x)) * (scala.math.abs(minPos.y) + scala.math.abs(maxPos.y))
-
 }
 
 
